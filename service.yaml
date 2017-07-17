@@ -1,0 +1,7 @@
+name: api
+requires:
+- auth
+
+targetPort: 80
+memory: 1G
+cpu: 0.5

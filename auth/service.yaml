@@ -1,0 +1,5 @@
+name: auth        # name of the service
+
+targetPort: 8080  # port the container exposes
+memory: 0.25G     # minimum available memory necessary to schedule the service
+cpu: 0.25         # minimum available cpu necessary to schedule the service
