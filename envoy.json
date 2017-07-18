@@ -56,6 +56,8 @@
             "address":"tcp://0.0.0.0:80",
             "filters":[
                 {
+                    "name":"http_connection_manager",
+                    "type":"read",
                     "config":{
                         "access_log":[
                             {
@@ -65,12 +67,12 @@
                         "codec_type":"auto",
                         "filters":[
                             {
+                                "name":"extauth",
+                                "type":"decoder",
                                 "config":{
                                     "cluster":"ext_auth",
                                     "timeout_ms":5000
-                                },
-                                "name":"extauth",
-                                "type":"decoder"
+                                }
                             },
                             {
                                 "config":{},
@@ -81,10 +83,10 @@
                         "route_config":{
                             "virtual_hosts":[
                                 {
+                                    "name":"backend",
                                     "domains":[
                                         "*"
                                     ],
-                                    "name":"backend",
                                     "routes":[
                                         {
                                             "cluster":"tasks",
@@ -103,9 +105,7 @@
                             ]
                         },
                         "stat_prefix":"ingress_http"
-                    },
-                    "name":"http_connection_manager",
-                    "type":"read"
+                    }
                 }
             ]
         }
