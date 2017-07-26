@@ -3,5 +3,5 @@ requires:
 - auth
 
 targetPort: 80
-memory: 1G
+memory: 0.5G
 cpu: 0.5
