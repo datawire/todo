@@ -123,11 +123,13 @@ installed in order to follow these instructions:
 
 4. Run `forge deploy`
 
-Note, this last step is a bit of a wart/edge case and should be able
-to go away at some point.
-
 5. Change to the tasks directory and do a canary deploy of tasks:
    `cd tasks && CANARY=true forge deploy`
+
+6. Run `curl <api>/tasks` and `curl <api>/search` to see things work.
+
+Note, step 5 is a bit of a wart/edge case and should be able to go
+away at some point.
 
 The reason this last step is necessary is because the tasks service
 always has two deployments, the stable deployment, and the canary
@@ -170,8 +172,29 @@ canary releases for stable services with many users.
 
 3. Run: `CANARY=true forge deploy`
 
+4. Run `curl <api>/tasks ` a whole bunch of times.
+
 This will push your change to the canary deployment for tasks, and now
 10% of the traffic to the tasks service will hit your canary.
+
+## Rapid application development
+
+This requires installing [telepresence](telepresence.io). Please note
+that telepresence will temporarily replace the deployment it is
+operating on and direct incoming traffic to your laptop. This is great
+if you want to develop the service in your own environment, but *not*
+recommended if your service is taking production traffic!
+
+1. Change to the service you would like to develop: `cd search`
+
+2. Edit app.py and add debug=True to enable file watch/reload.
+
+3. Run: `telepresence --expose 8080 -s search` (this will start a shell)
+
+4. From within the telepresence shell, run: `python app.py`
+
+5. Hack away while running `curl <api>/search` and see your changes
+   live reload.
 
 ## Rationale
 
