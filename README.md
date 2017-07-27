@@ -126,18 +126,20 @@ installed in order to follow these instructions:
 5. Change to the tasks directory and do a canary deploy of tasks:
    `cd tasks && CANARY=true forge deploy`
 
-6. Run `curl <api>/tasks` and `curl <api>/search` to see things work.
+6. Run `curl <api>/tasks` and `curl <api>/search` to see things
+   work. (Note that you will get an authentication failure, see the
+   authentication section to workaround this.)
 
 Note, step 5 is a bit of a wart/edge case and should be able to go
 away at some point.
 
-The reason this last step is necessary is because the tasks service
-always has two deployments, the stable deployment, and the canary
-deployment. The API gateway is configured to split traffic between
-these two deployments in a 90%/10% proportion. If you have nothing to
-canary, you simply deploy the stable code into the canary deployment
-and the traffic still flows to both deployments, but each deployment
-is running the same code.
+The reason step 5 is necessary is because the tasks service always has
+two deployments, the stable deployment, and the canary deployment. The
+API gateway is configured to split traffic between these two
+deployments in a 90%/10% proportion. If you have nothing to canary,
+you simply deploy the stable code into the canary deployment and the
+traffic still flows to both deployments, but each deployment is
+running the same code.
 
 This is simple to set up, and can be easily customized (even
 dynamically) to split a different proportion of traffic depending on
@@ -195,6 +197,27 @@ recommended if your service is taking production traffic!
 
 5. Hack away while running `curl <api>/search` and see your changes
    live reload.
+
+## Authentication
+
+The API gateway is configured to use the
+[ambassador](getambassador.io) plugin to provide custom edge
+authentication. The way this works is that envoy (with the ambassador
+plugin) will first route every connection to the auth service. If this
+service returns a 200, then envoy will continue to route that
+connection the way it normally would. If the auth service returns
+anything other than a 200, then this result is returned directly to
+the originator of the connection.
+
+You can put whatever logic you want to in the the auth service and
+implement/reimplement the auth service in whatever language you wish.
+
+Note: currently the auth service is hard coded to use a trial auth0
+account. You should change this to use your own auth0 account if you
+would like to play with this as an auth0 integration. Alternatively if
+you want to bypass auth entirely to play with the other aspects of
+this application, just comment out the @requires_auth annotation in
+`auth/app.py`.
 
 ## Rationale
 
