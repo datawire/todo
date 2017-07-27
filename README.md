@@ -239,5 +239,6 @@ ultimately necessary.
 Most of the technology that has been open sourced, does not actually
 illustrate the workflow (how it is used, and when it is appropriate to
 use). This application is intended to fill that gap by illustrating
-how you can put together productive workflows using foundational
-microservices tech.
+how you can leverage the foundational technology open sourced by
+successful microservices companies to provide the development
+workflows that are key to realizing the benefits of microservices.
