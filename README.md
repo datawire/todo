@@ -109,19 +109,27 @@ layout.
    .
 ```
 
-## Standing up the application
+## Quick start
 
-You will need `kubectl`, `docker`, and [forge](http://forge.sh) to be
-installed in order to follow these instructions:
+### Prerequisites
 
-1. Make sure your `kubectl` is configured to talk to the cluster into
-   which you would like to deploy the application.
+You will need the following installed locally:
 
-2. Clone this repository: `git clone ...`
+* Python 2.7 or later
+* Docker
+* kubectl, configured to talk to the cluster where you want to deploy the application
+* An account with a Docker Registry (e.g., Google Container Registry or Docker Hub)
+* [Forge](http://forge.sh)
 
-3. Change into cloned repo directory: `cd todo`
+### Quick Start
 
-4. Run `forge deploy`
+1. Clone this repository: `git clone https://github.com/datawire/todo.git`
+
+2. Change into cloned repo directory: `cd todo`
+
+3. Run `forge setup`, which will configure Forge with your Docker Registry. If you've already done this, you can skip this step.
+
+4. Run `forge deploy`. This will build Docker images for all the services of the application, push them into the Docker registry, and deploy them into Kubernetes.
 
 5. Change to the tasks directory and do a canary deploy of tasks:
    `cd tasks && CANARY=true forge deploy`
@@ -148,7 +156,7 @@ currently leave the bootstrapping wart of doing a 'noop' canary deploy
 in order to avoid 10% of your traffic flowing to a nonexistent
 deployment.
 
-## Deploying a change
+### Deploying a change
 
 1. Edit any files you would like to change.
 
@@ -160,7 +168,7 @@ directory. If you want to deploy a change to just one service
 (e.g. just the tasks service), cd into `tasks` and run `forge deploy`
 from there.
 
-## Deploying a canary
+### Deploying a canary
 
 Note that only the tasks service is set up to enable canary
 deployments. One of the benefits of independently releasable services,
@@ -174,10 +182,12 @@ canary releases for stable services with many users.
 
 3. Run: `CANARY=true forge deploy`
 
-4. Run `curl <api>/tasks ` a whole bunch of times.
+4. Run `curl <api>/tasks ` in a shell script loop, e.g.,
+
+   `while true; do curl http://${GATEWAY_URL}/tasks; done`
 
 This will push your change to the canary deployment for tasks, and now
-10% of the traffic to the tasks service will hit your canary.
+10% of the traffic to the tasks service will hit your canary. Envoy uses a windowing algorithm to load balance traffic, so you will want to use the loop instead of running curl requests by hand.
 
 ## Rapid application development
 
