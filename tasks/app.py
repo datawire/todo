@@ -20,7 +20,8 @@ def elapsed():
 @app.route('/', methods=["GET"])
 def root():
     result = mongo.db.tasks.find(projection={"_id": False})
-    return jsonify(list(result))
+    return jsonify({"status": "ok",
+                    "tasks": list(result)})
 
 @app.route('/<tag>', methods=["POST"])
 def add(tag):
