@@ -13,10 +13,11 @@ use this as a starter kit and plug in your own services. If you
 already have one, you can pick apart what you like from this and
 ignore or adapt the rest.
 
-The application consists of 4 services:
+The application consists of 6 services:
 
-  - A tasks service (currently a stub) but notionally responsible for
-    remembering whatever tasks a user might want to do.
+  - A tasks service (currently a simple facade around mongo) but
+    notionally responsible for remembering whatever tasks a user might
+    want to do.
 
   - A search service (currently a stub) but notionally responsible
     enabling users to find particular tasks on demand.
@@ -27,7 +28,17 @@ The application consists of 4 services:
 
   - An authentication service that (via the ambassador plugin)
     provides custom authentication logic in a single edge service. The
-    authentication service provide delegates to auth0.
+    authentication service provides basic authentication with a
+    hardcoded "todo" password, but can be easily modified to integrate
+    with auth0.
+
+  - A mongodb service deployed using stateful sets on top of
+    kubernetes with backing store. This currently assumes google ssd
+    storage, but can be easily modified for other cloud providers or
+    custom kubernetes deployments.
+
+  - A prometheus service deployed to collect metrics from kubernetes
+    and the API gateway.
 
 Service Topology:
 
@@ -92,6 +103,17 @@ layout.
    |     +--- *                   (task service implementation)
    |
    |
+   +--- mongo                 MongoDB Service
+   |     |
+   |     +--- service.yaml        (service metadata for mongo)
+   |     |
+   |     +--- Dockerfile          (dockerfile that builds the mongo sidecar)
+   |     |
+   |     +--- k8s/deployment.yaml (deployment templates for mongo)
+   |     |
+   |     +--- *                   (see mongo/README.md for more details)
+   |
+   |
    +--- search                 Search Service
    |     |
    |     +--- service.yaml        (service metadata for forge)
@@ -101,6 +123,17 @@ layout.
    |     +--- k8s/deployment.yaml (deployment templates for the search service)
    |     |
    |     +--- *                   (task service implementation)
+   |
+   |
+   +--- prometheus             Search Service
+   |     |
+   |     +--- service.yaml        (service metadata for prometheus)
+   |     |
+   |     +--- Dockerfile          (dockerfile that builds prometheus container)
+   |     |
+   |     +--- k8s/deployment.yaml (deployment templates for prometheus)
+   |     |
+   |     +--- index.html          (skeletal console template for prometheus)
    |
    |
    +--- ...
@@ -134,9 +167,8 @@ You will need the following installed locally:
 5. Change to the tasks directory and do a canary deploy of tasks:
    `cd tasks && CANARY=true forge deploy`
 
-6. Run `curl <api>/tasks` and `curl <api>/search` to see things
-   work. (Note that you will get an authentication failure, see the
-   authentication section to workaround this.)
+6. Run `curl <api>/tasks -u any:todo` and `curl <api>/search -u any:todo` to see things
+   work.
 
 Note, step 5 is a bit of a wart/edge case and should be able to go
 away at some point.
@@ -222,12 +254,13 @@ the originator of the connection.
 You can put whatever logic you want to in the the auth service and
 implement/reimplement the auth service in whatever language you wish.
 
-Note: currently the auth service is hard coded to use a trial auth0
-account. You should change this to use your own auth0 account if you
-would like to play with this as an auth0 integration. Alternatively if
-you want to bypass auth entirely to play with the other aspects of
-this application, just comment out the @requires_auth annotation in
-`auth/app.py`.
+Note: currently the auth service is hard coded to use basic
+authentication with a hard coded password of "todo". The auth0.py next
+to app.py contains boilerplate code to integrate with auth0. If you
+would like to play with this, you should change it to use your own
+auth0 account. Simply remove the logic currently in app.py, replace it
+with `return ('', 200)` and add a @requires_auth annotation (you will
+need to import the decorator from from auth0).
 
 ## Rationale
 
