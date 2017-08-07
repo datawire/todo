@@ -33,6 +33,9 @@ spec:
         imagePullPolicy: IfNotPresent
         name: {{service.name}}
         resources:
+          requests:
+            memory: 0.25G
+            cpu: 0.1
           limits:
             memory: {{service.memory}}
             cpu: {{service.cpu}}
