@@ -231,7 +231,7 @@ recommended if your service is taking production traffic!
 
 1. Change to the service you would like to develop: `cd search`
 
-2. Edit app.py and add debug=True to enable file watch/reload.
+2. Edit `app.py` and change the `app.run` command to enable hot reload: `app.run(host="0.0.0.0", port=8080, debug=True)`.
 
 3. Run: `telepresence --expose 8080 -s search` (this will start a shell)
 
