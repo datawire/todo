@@ -11,6 +11,5 @@ RUN apt-get update && apt-get -q install -y \
     curl \
     dnsutils
 
-COPY envoy.json /etc/envoy.json
 ENTRYPOINT [ "/usr/local/bin/envoy" ]
-CMD [ "-c", "/etc/envoy.json" ]
+CMD [ "-c", "/etc/envoy/envoy.json" ]

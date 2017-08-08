@@ -3,5 +3,9 @@ requires:
 - auth
 
 targetPort: 80
-memory: 0.5G
-cpu: 0.5
+memory: 0.25G
+cpu: 0.25
+
+routes:
+  "/tasks/": {tasks: 90, tasks-canary: 10}
+  "/search/": search
