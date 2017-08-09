@@ -41,7 +41,7 @@ AUTH0_DOMAIN = os.environ["AUTH0_DOMAIN"]
 AUTH0_CLIENT_ID = os.environ["AUTH0_CLIENT_ID"]
 AUTH0_API_AUDIENCE = os.environ["AUTH0_API_AUDIENCE"]
 
-API_ROOT = os.environ["API_ROOT"]
+API_PROTO = os.environ["API_PROTO"]
 
 ALGORITHMS = ["RS256"]
 
@@ -53,13 +53,16 @@ def jwks():
     jsonurl = urllib.urlopen("https://"+AUTH0_DOMAIN+"/.well-known/jwks.json")
     JWKS = json.loads(jsonurl.read())
 
+def get_authority():
+    return request.json[":authority"]
+
 def auth_url(url, scopes="email name profile"):
     params = {
         "audience": AUTH0_API_AUDIENCE,
         "scope": scopes,
         "response_type": "id_token token",
         "client_id": AUTH0_CLIENT_ID,
-        "redirect_uri": API_ROOT + "/callback",
+        "redirect_uri": "%s://%s/%s" % (API_PROTO, get_authority(), "callback"),
         "nonce": "YOUR_CRYPTOGRAPHIC_NONCE",
         "state": url
     }
@@ -90,6 +93,8 @@ def get_token():
 
 def is_valid(token):
     if not token: return False
+
+    print "URL:", request.url_root, request.headers.get("Host", None), request.json
 
     try:
         unverified_header = jwt.get_unverified_header(token)

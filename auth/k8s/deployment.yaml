@@ -39,8 +39,8 @@ spec:
           value: {{service.auth0.client_id}}
         - name: AUTH0_API_AUDIENCE
           value: {{service.auth0.api_audience or service.api_root}}
-        - name: API_ROOT
-          value: {{service.api_root}}
+        - name: API_PROTO
+          value: {{service.api_proto}}
         resources:
           limits:
             memory: {{service.memory}}
