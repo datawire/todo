@@ -3,3 +3,10 @@ name: auth        # name of the service
 targetPort: 8080  # port the container exposes
 memory: 0.25G     # minimum available memory necessary to schedule the service
 cpu: 0.25         # minimum available cpu necessary to schedule the service
+
+api_root: "http://demo.d6e.co"
+
+auth0:
+  domain: "todo-rhs.auth0.com"
+  client_id: "WWYXwp7UlXKKcOnRri1V9qmtU2FNLIdq"
+  api_audience: "https://todo.example.org"

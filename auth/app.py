@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import base64, json, sys, time, urllib, urlparse
+import base64, json, os, sys, time, urllib, urlparse
 from flask import Flask, g, jsonify, redirect, request
 from jose import jwt
 app = Flask(__name__)
@@ -37,9 +37,12 @@ def elapsed():
     hours, minutes = divmod(minutes, 60)
     return "%d:%02d:%02d" % (hours, minutes, seconds)
 
-AUTH0_DOMAIN = "todo-rhs.auth0.com"
-AUTH0_CLIENT_ID = "WWYXwp7UlXKKcOnRri1V9qmtU2FNLIdq"
-API_AUDIENCE = "https://todo.example.org"
+AUTH0_DOMAIN = os.environ["AUTH0_DOMAIN"]
+AUTH0_CLIENT_ID = os.environ["AUTH0_CLIENT_ID"]
+AUTH0_API_AUDIENCE = os.environ["AUTH0_API_AUDIENCE"]
+
+API_ROOT = os.environ["API_ROOT"]
+
 ALGORITHMS = ["RS256"]
 
 JWKS = None
@@ -52,11 +55,11 @@ def jwks():
 
 def auth_url(url, scopes="email name profile"):
     params = {
-        "audience": API_AUDIENCE,
+        "audience": AUTH0_API_AUDIENCE,
         "scope": scopes,
         "response_type": "id_token token",
         "client_id": AUTH0_CLIENT_ID,
-        "redirect_uri": "http://demo.d6e.co/callback",
+        "redirect_uri": API_ROOT + "/callback",
         "nonce": "YOUR_CRYPTOGRAPHIC_NONCE",
         "state": url
     }
@@ -110,7 +113,7 @@ def is_valid(token):
                 token,
                 rsa_key,
                 algorithms=ALGORITHMS,
-                audience=API_AUDIENCE,
+                audience=AUTH0_API_AUDIENCE,
                 issuer="https://"+AUTH0_DOMAIN+"/")
             return True
         except jwt.ExpiredSignatureError:
