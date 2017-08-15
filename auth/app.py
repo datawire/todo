@@ -68,17 +68,18 @@ def auth_url(url, scopes="email name profile"):
     }
     return "https://" + AUTH0_DOMAIN + "/authorize?" + urllib.urlencode(params)
 
-def get_token():
+def get_tokens():
+    result = []
+
     # We first check for a bearer token in the authorization header,
     # and then if we don't find something we like there, we look in
     # the "access_token" cookie.
     auth_header = request.json.get("authorization", None)
     if auth_header:
         parts = auth_header.split()
-        if parts[0].lower() == "bearer":
-            if len(parts) < 2:
-                raise APIError("invalid_header", "no token found", 401)
-            return parts[1]
+        if len(parts) != 2:
+            raise APIError("invalid_header", "no token found", 401)
+        result.append((parts[0].lower(), parts[1]))
 
     # XXX: this cookie extraction should be replaced with standard
     # flask cookie API once we get the new ambassador plugin
@@ -87,11 +88,11 @@ def get_token():
         params = urlparse.parse_qs(cookie)
         for k in list(params.keys()):
             params[k.strip()] = params[k]
-        return params.get("access_token", [None])[0]
-    else:
-        return None
+        result.append(("bearer", params.get("access_token", [None])[0]))
 
-def is_valid(token):
+    return result
+
+def is_valid_bearer(token):
     if not token: return False
 
     print "URL:", request.url_root, request.headers.get("Host", None), request.json
@@ -128,18 +129,38 @@ def is_valid(token):
         except Exception, e:
             raise APIError("invalid_header", "Unable to parse authentication token: %s" % e, 400)
 
+# XXX: this is convenience for demo purposes and something a bit
+#      smarter might make sense for dev/debug access, but definitely
+#      change this if you want to use this code for a real application
+def is_valid_basic(token):
+    user, password = base64.decodestring(token).split(":")
+    return password == "todo"
+
+VALIDATORS = {
+    "basic": is_valid_basic,
+    "bearer": is_valid_bearer
+}
+
+def is_valid(type, token):
+    return VALIDATORS[type](token)
+
+AUTH_WHITELIST = ("/callback", "/health")
+APP_WHITELIST = () # empty for now, but add any public paths here
+WHITELIST = set(AUTH_WHITELIST + APP_WHITELIST)
+
 @app.route('/ambassador/auth', methods=['POST'])
 def root():
     url = request.json[":path"]
     path, query = urllib.splitquery(url)
 
-    if path in ("/callback", "/health"):
+    if path in WHITELIST:
         return ('', 200)
 
-    if is_valid(get_token()):
-        return ('', 200)
-    else:
-        return redirect(auth_url(url), code=302)
+    for type, token in get_tokens():
+        if is_valid(type, token):
+            return ('', 200)
+
+    return redirect(auth_url(url), code=302)
 
 @app.route('/health')
 def health():

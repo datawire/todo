@@ -72,11 +72,10 @@ layout.
    |
    |               API Gateway
    |
-   +--- service.yaml        (service metadata for forge)
+   +--- service.yaml        (service metadata for forge including
+   |                         route config for the API gateway)
    |
    +--- Dockerfile          (dockerfile that builds the API Gateway)
-   |
-   +--- envoy.json          (configuration file for the API gateway)
    |
    +--- k8s/deployment.yaml (deployment templates for the API gateway)
    |
@@ -89,7 +88,7 @@ layout.
    |     |
    |     +--- k8s/deployment.yaml (deployment templates for the auth service)
    |     |
-   |     +--- *                   (auth service implementation)
+   |     +--- app.py              (auth service implementation)
    |     
    |
    +--- tasks                 Tasks Service
@@ -214,7 +213,7 @@ canary releases for stable services with many users.
 
 3. Run: `CANARY=true forge deploy`
 
-4. Run `curl <api>/tasks ` in a shell script loop, e.g.,
+4. Run `curl <api>/tasks/` in a shell script loop, e.g.,
 
    `while true; do curl http://${GATEWAY_URL}/tasks; done`
 
@@ -254,13 +253,14 @@ the originator of the connection.
 You can put whatever logic you want to in the the auth service and
 implement/reimplement the auth service in whatever language you wish.
 
-Note: currently the auth service is hard coded to use basic
-authentication with a hard coded password of "todo". The auth0.py next
-to app.py contains boilerplate code to integrate with auth0. If you
-would like to play with this, you should change it to use your own
-auth0 account. Simply remove the logic currently in app.py, replace it
-with `return ('', 200)` and add a @requires_auth annotation (you will
-need to import the decorator from from auth0).
+Currently the auth service provides authentication via an auth0
+integration as well as using a hard coded basic authentication check
+with a password of "todo".
+
+If you would like to use this implementation as a model for your own
+auth0 integration, you should change the constants defined in
+`auth/service.yaml` to reference your own auth0 account. You should
+also disable (or change) the basic authentication check.
 
 ## Rationale
 
