@@ -2,7 +2,6 @@ name: api
 requires:
 - auth
 
-targetPort: 80
 memory: 0.25G
 cpu: 0.25
 

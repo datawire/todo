@@ -62,9 +62,9 @@ def auth_url(url, scopes="email name profile"):
         "scope": scopes,
         "response_type": "id_token token",
         "client_id": AUTH0_CLIENT_ID,
-        "redirect_uri": "%s://%s/%s" % (API_PROTO, get_authority(), "callback"),
+        "redirect_uri": "%s://%s%s" % (API_PROTO, get_authority(), "/callback"),
         "nonce": "YOUR_CRYPTOGRAPHIC_NONCE",
-        "state": url
+        "state": "%s://%s%s" % (API_PROTO, get_authority(), url)
     }
     return "https://" + AUTH0_DOMAIN + "/authorize?" + urllib.urlencode(params)
 
@@ -133,13 +133,17 @@ def root():
     url = request.json[":path"]
     path, query = urllib.splitquery(url)
 
-    if path in ("/callback",):
+    if path in ("/callback", "/health"):
         return ('', 200)
 
     if is_valid(get_token()):
         return ('', 200)
     else:
         return redirect(auth_url(url), code=302)
+
+@app.route('/health')
+def health():
+    return ("OK", 200)
 
 @app.route('/callback', methods=["GET", "POST"])
 def callback():
