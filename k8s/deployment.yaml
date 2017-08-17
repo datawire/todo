@@ -54,9 +54,12 @@ spec:
         - mountPath: "/etc/envoy"
           name: config-volume
         resources:
+          requests:
+            memory: {{service.min_memory}}
+            cpu: {{service.min_cpu}}
           limits:
-            memory: {{service.memory}}
-            cpu: {{service.cpu}}
+            memory: {{service.max_memory}}
+            cpu: {{service.max_cpu}}
         terminationMessagePath: /dev/termination-log
       - name: statsd-exporter
         image: prom/statsd-exporter
@@ -189,4 +192,4 @@ data:
       ],
       "stats_flush_interval_ms":1000,
       "statsd_local_udp_port":9125
-    } 
+    }
