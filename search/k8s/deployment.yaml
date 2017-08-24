@@ -33,9 +33,12 @@ spec:
         imagePullPolicy: IfNotPresent
         name: {{service.name}}
         resources:
+          requests:
+            memory: {{service.min_memory}}
+            cpu: {{service.min_cpu}}
           limits:
-            memory: {{service.memory}}
-            cpu: {{service.cpu}}
+            memory: {{service.max_memory}}
+            cpu: {{service.max_cpu}}
         terminationMessagePath: /dev/termination-log
       dnsPolicy: ClusterFirst
       restartPolicy: Always

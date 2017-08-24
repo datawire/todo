@@ -32,10 +32,22 @@ spec:
       - image: {{build.images["Dockerfile"]}}
         imagePullPolicy: IfNotPresent
         name: {{service.name}}
+        env:
+        - name: AUTH0_DOMAIN
+          value: {{service.auth0.domain}}
+        - name: AUTH0_CLIENT_ID
+          value: {{service.auth0.client_id}}
+        - name: AUTH0_API_AUDIENCE
+          value: {{service.auth0.api_audience or service.api_root}}
+        - name: API_PROTO
+          value: {{service.api_proto}}
         resources:
+          requests:
+            memory: {{service.min_memory}}
+            cpu: {{service.min_cpu}}
           limits:
-            memory: {{service.memory}}
-            cpu: {{service.cpu}}
+            memory: {{service.max_memory}}
+            cpu: {{service.max_cpu}}
         terminationMessagePath: /dev/termination-log
       dnsPolicy: ClusterFirst
       restartPolicy: Always

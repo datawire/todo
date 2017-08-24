@@ -20,6 +20,7 @@ def elapsed():
 @app.route('/', methods=["GET"])
 def root():
     result = mongo.db.tasks.find(projection={"_id": False})
+    time.sleep(0.5)
     return jsonify({"status": "ok",
                     "tasks": list(result)})
 
